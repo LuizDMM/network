@@ -1,0 +1,16 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <h1> All Posts </h1>
+    <div class="newPostDiv border rounded">
+        <form id="newPostForm"> <!-- Create Django form -->
+            <div class="form-group">
+                <label for="newPostText">New Post</label>
+                <textarea class="form-control" id="newPostText"></textarea>
+            </div>
+        </form>
+    </div>
+    <div class="posts">
+        
+    </div>
+{% endblock %}
