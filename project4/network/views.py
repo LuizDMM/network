@@ -4,11 +4,16 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User
+from .forms import newPostForm
+from .models import User, Post, LikeRelations
 
 
 def index(request):
-    return render(request, "network/index.html")
+    if request.method == "POST":
+        #TODO
+       pass
+    else:
+       return render(request, "network/index.html", {'newPostForm': newPostForm})
 
 
 def login_view(request):

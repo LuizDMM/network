@@ -3,11 +3,12 @@
 {% block body %}
     <h1> All Posts </h1>
     <div class="newPostDiv border rounded">
-        <form id="newPostForm"> <!-- Create Django form -->
-            <div class="form-group">
-                <label for="newPostText">New Post</label>
-                <textarea class="form-control" id="newPostText"></textarea>
-            </div>
+        <form id="newPostForm" action="{% url 'index' %}" method="post"> 
+            {% csrf_token %}
+            {{ newPostForm.content.errors}}
+            <label for="postContent" class="form-label">New Post:</label>
+            {{ newPostForm.content }}
+            <input type="submit" value="Submit" class="btn btn-primary">
         </form>
     </div>
     <div class="posts">
