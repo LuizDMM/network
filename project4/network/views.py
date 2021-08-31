@@ -5,22 +5,28 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from .forms import newPostForm
-from .functions import createPostFormAuthor
+from .functions import createPostFormAuthor, getAllUserPosts
 from .models import User, Post, LikeRelations
 
 
 def index(request):
+    posts = getAllUserPosts()
+    print(posts)
+    variables = {"newPostForm": newPostForm, "posts": posts}
+    
     if request.method == "POST":
         # Get form data
         form = newPostForm(request.POST)
+        print(form)
         
         # Create post if data is valid
         if form.is_valid():
             createPostFormAuthor(form, request.user)
+            return render(request, "network/index.html", variables)
         else:
-            return render(request, "network/index.html", {"newPostForm": form})
+            return render(request, "network/index.html", {"newPostForm": form, "posts": posts})
     else:
-        return render(request, "network/index.html", {"newPostForm": newPostForm})
+        return render(request, "network/index.html", variables)
 
 
 def login_view(request):

@@ -12,3 +12,8 @@ def createPostFormAuthor(form, author):
     postData.dateTime = datetime.now()
     print(postData)
     postData.save()
+
+
+def getAllUserPosts():
+    posts = Post.objects.all().order_by('-dateTime')
+    return posts
