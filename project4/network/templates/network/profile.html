@@ -1,18 +1,22 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    <h1> All Posts </h1>
-    <div class="PostsDiv border rounded">
-        <form id="newPostForm" action="{% url 'index' %}" method="post"> 
-            {% csrf_token %}
-            {{ newPostForm.content.errors}}
-            <label for="postContent" class="form-label">New Post:</label>
-            {{ newPostForm.content }}
-            <input type="submit" value="Submit" class="btn btn-primary">
-        </form>
+    <h1>{{ profile.username }}</h1>
+    <div class="row">
+        <div class="col">
+            <p>Following: {{ profile.following }}</p>
+        </div>
+        <div class="col">
+            <p>Followers: {{ profile.followers }}</p>
+        </div>
+        <div class="col">
+            <button class="btn btn-primary">Follow (TODO)</button>
+        </div>
     </div>
+    <hr>
+    <h2>Posts</h2>
     <div class="posts">
-        {% for post in posts %}
+        {% for post in profile.posts %}
         <div class="PostsDiv border rounded">
             <p>{{ post.content }}</p>
             <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">

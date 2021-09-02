@@ -4,14 +4,13 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
+from . import functions
 from .forms import newPostForm
-from .functions import createPostFormAuthor, getAllUserPostsAndLikes, PostData
 from .models import User, Post, Like
 
 
 def index(request):
-    posts = getAllUserPostsAndLikes()
-    print(posts)
+    posts = functions.getAllUserPostsAndLikes()
     variables = {"newPostForm": newPostForm, "posts": posts}
     
     if request.method == "POST":
@@ -21,8 +20,8 @@ def index(request):
         
         # Create post if data is valid
         if form.is_valid():
-            createPostFormAuthor(form, request.user)
-            return render(request, "network/index.html", variables)
+            functions.createPostFormAuthor(form, request.user)
+            return HttpResponseRedirect(reverse("index"))
         else:
             return render(request, "network/index.html", {"newPostForm": form, "posts": posts})
     else:
@@ -81,3 +80,7 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "network/register.html")
+
+def profile(request, username):
+    profileData = functions.getProfileData(username)
+    return render(request, "network/profile.html", {"profile": profileData})
