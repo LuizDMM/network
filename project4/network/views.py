@@ -5,12 +5,12 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from .forms import newPostForm
-from .functions import createPostFormAuthor, getAllUserPosts
-from .models import User, Post, LikeRelations
+from .functions import createPostFormAuthor, getAllUserPostsAndLikes, PostData
+from .models import User, Post, Like
 
 
 def index(request):
-    posts = getAllUserPosts()
+    posts = getAllUserPostsAndLikes()
     print(posts)
     variables = {"newPostForm": newPostForm, "posts": posts}
     

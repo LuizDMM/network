@@ -1,6 +1,6 @@
 from django import forms
 from django.forms.widgets import Textarea
-from .models import User, Post, LikeRelations
+from .models import User, Post, Like
 
 class newPostForm(forms.ModelForm):
     class Meta:

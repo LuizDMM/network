@@ -11,6 +11,6 @@ class Post(models.Model):
     content = models.TextField()
     dateTime = models.DateTimeField()
 
-class LikeRelations(models.Model):
+class Like(models.Model):
     post = models.ForeignKey("Post", on_delete=models.CASCADE)
     personThatLike = models.ForeignKey("User", on_delete=models.CASCADE)
