@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -81,6 +82,11 @@ def register(request):
     else:
         return render(request, "network/register.html")
 
+
+@login_required
 def profile(request, username):
-    profileData = functions.getProfileData(username)
-    return render(request, "network/profile.html", {"profile": profileData})
+    if request.method == "GET":
+        print(request.user.username)
+        return render(request, "network/profile.html", {"profile": functions.ProfileData().get(username)})
+    elif request.method == "POST": # Create a form in the view that the submit button follows.
+        functions.followFollowedFollowing(username, request.user.username)

@@ -34,22 +34,42 @@ def getAllUserPostsAndLikes():
     return postsToReturn
 
 
-class ProfileData():
+class ProfileData:
     def __init__(self):
         self.username = "Username"
         self.following = 0
         self.followers = 0
         self.posts = []
 
+    def checkIfIsFollowing(self, username):
+        selfDataQuery = User.objects.get(username=self.username)
+        userToCheckDataQuery = User.objects.get(username=username)
+        followRelationQuery = FollowRelations.objects.filter(
+            following=selfDataQuery
+        ).filter(followed=userToCheckDataQuery)
+        if followRelationQuery > 0:
+            return True
+        return False
 
-def getProfileData(username):
-    userModelData = User.objects.get(username=username)
-    postModelData = Post.objects.filter(author=userModelData).order_by("-dateTime")
-    profileData = ProfileData()
-    profileData.username = username
-    profileData.following = FollowRelations.objects.filter(following=userModelData).count()
-    profileData.followers = FollowRelations.objects.filter(followed=userModelData).count()
-    for post in postModelData:
-        profileData.posts.append(post)
-    return profileData
-    
+    def get(self, username):
+        userModelData = User.objects.get(username=username)
+        postModelData = Post.objects.filter(author=userModelData).order_by("-dateTime")
+        self.username = username
+        self.following = FollowRelations.objects.filter(
+            following=userModelData
+        ).count()
+        self.followers = FollowRelations.objects.filter(
+            followed=userModelData
+        ).count()
+        for post in postModelData:
+            self.posts.append(post)
+        return self
+
+
+def followFollowedFollowing(followed, following):
+    followingData = ProfileData().get(following)
+    followedData = ProfileData().get(followed)
+    if followingData.checkIfIsFollowing() != True:
+        FollowRelations(followed=followedData, following=followingData).save()
+        return True
+    return True
