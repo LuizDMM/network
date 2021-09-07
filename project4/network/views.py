@@ -13,18 +13,20 @@ from .models import User, Post, Like
 def index(request):
     posts = functions.getAllUserPostsAndLikes()
     variables = {"newPostForm": newPostForm, "posts": posts}
-    
+
     if request.method == "POST":
         # Get form data
         form = newPostForm(request.POST)
         print(form)
-        
+
         # Create post if data is valid
         if form.is_valid():
             functions.createPostFormAuthor(form, request.user)
             return HttpResponseRedirect(reverse("index"))
         else:
-            return render(request, "network/index.html", {"newPostForm": form, "posts": posts})
+            return render(
+                request, "network/index.html", {"newPostForm": form, "posts": posts}
+            )
     else:
         return render(request, "network/index.html", variables)
 
@@ -86,7 +88,20 @@ def register(request):
 @login_required
 def profile(request, username):
     if request.method == "GET":
-        print(request.user.username)
-        return render(request, "network/profile.html", {"profile": functions.ProfileData().get(username)})
-    elif request.method == "POST": # Create a form in the view that the submit button follows.
-        functions.followFollowedFollowing(username, request.user.username)
+        user = functions.ProfileData().get(request.user.username)
+        return render(
+            request,
+            "network/profile.html",
+            {
+                "profile": functions.ProfileData().get(username),
+                "isFollowing": user.checkIfIsFollowing(username),
+            },
+        )
+    elif request.method == "POST":  # Create a form in the view that the submit button follows.
+        functions.followOrUnfollowFollowedFollowing(username, request.user.username)
+        return HttpResponseRedirect(reverse("profile", args=[username]))
+
+
+@login_required
+def following(request):
+    pass

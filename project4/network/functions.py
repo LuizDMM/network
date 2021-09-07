@@ -47,7 +47,7 @@ class ProfileData:
         followRelationQuery = FollowRelations.objects.filter(
             following=selfDataQuery
         ).filter(followed=userToCheckDataQuery)
-        if followRelationQuery > 0:
+        if followRelationQuery.count() > 0:
             return True
         return False
 
@@ -66,10 +66,11 @@ class ProfileData:
         return self
 
 
-def followFollowedFollowing(followed, following):
+def followOrUnfollowFollowedFollowing(followed, following):
     followingData = ProfileData().get(following)
     followedData = ProfileData().get(followed)
-    if followingData.checkIfIsFollowing() != True:
-        FollowRelations(followed=followedData, following=followingData).save()
+    if followingData.checkIfIsFollowing(followedData.username) == False:
+        FollowRelations(followed=User.objects.get(username=followedData.username), following=User.objects.get(username=followingData.username)).save()
         return True
+    FollowRelations.objects.filter(followed=User.objects.get(username=followedData.username), following=User.objects.get(username=followingData.username)).delete()
     return True
