@@ -7,7 +7,7 @@ from django.urls import reverse
 
 from . import functions
 from .forms import newPostForm
-from .models import User, Post, Like
+from .models import User, Post, Like, FollowRelations
 
 
 def index(request):
@@ -97,11 +97,26 @@ def profile(request, username):
                 "isFollowing": user.checkIfIsFollowing(username),
             },
         )
-    elif request.method == "POST":  # Create a form in the view that the submit button follows.
+    elif (
+        request.method == "POST"
+    ):  # Create a form in the view that the submit button follows.
         functions.followOrUnfollowFollowedFollowing(username, request.user.username)
         return HttpResponseRedirect(reverse("profile", args=[username]))
 
 
 @login_required
 def following(request):
-    pass
+    posts = []
+    profilesThatUserFollows = FollowRelations.objects.filter(
+        following=User.objects.get(username=request.user.username)
+    )
+    for profile in profilesThatUserFollows:
+        profilePosts = functions.getUserPostsAndLikes(profile.followed.username)
+        posts.append(profilePosts)
+    return render(
+            request,
+            "network/following.html",
+            {
+                "posts": posts
+            },
+        )

@@ -34,6 +34,20 @@ def getAllUserPostsAndLikes():
     return postsToReturn
 
 
+def getUserPostsAndLikes(username):
+    author = User.objects.get(username=username)
+    postsQueried = Post.objects.filter(author=author).order_by('-dateTime')
+    postsToReturn = []
+    for item in postsQueried:
+        data = PostData()
+        data.author = item.author
+        data.dateTime = item.dateTime
+        data.content = item.content
+        data.likes = Like.objects.filter(post=item).count()
+        postsToReturn.append(data)
+    return postsToReturn
+
+    
 class ProfileData:
     def __init__(self):
         self.username = "Username"
