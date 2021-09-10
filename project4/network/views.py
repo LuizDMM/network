@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
@@ -106,13 +107,19 @@ def profile(request, username):
 
 @login_required
 def following(request):
-    posts = []
+    # Get the follow relations
     profilesThatUserFollows = FollowRelations.objects.filter(
         following=User.objects.get(username=request.user.username)
     )
+
+    # Create a list with the usernames of all the users that the user is following
+    usernames = []
     for profile in profilesThatUserFollows:
-        profilePosts = functions.getUserPostsAndLikes(profile.followed.username)
-        posts.append(profilePosts)
+        usernames.append(profile.followed.username)
+
+    # Get the posts from all the users that the user is following
+    posts = functions.getFollowingPostsAndLikes(usernames)
+
     return render(
             request,
             "network/following.html",
