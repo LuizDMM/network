@@ -12,7 +12,7 @@
         </form>
     </div>
     <div class="posts">
-        {% for post in posts %}
+        {% for post in page %}
         <div class="PostsDiv border rounded">
             <p>{{ post.content }}</p>
             <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
@@ -23,5 +23,13 @@
             </footer>
         </div>
         {% endfor %}
+    </div>
+    <div class="row center">
+        {% if page.has_next %}
+            <a href="{% url 'index' %}?page={{ page.next_page_number }}">Next</a>
+        {% endif %}
+        {% if page.has_previous %}
+            <a href="{% url 'index' %}?page={{ page.previous_page_number }}">Previous</a>
+        {% endif %}
     </div>
 {% endblock %}

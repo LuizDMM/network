@@ -12,8 +12,12 @@ from .models import User, Post, Like, FollowRelations
 
 
 def index(request):
+    # Variable declaration and pagination logic
     posts = functions.getAllUserPostsAndLikes()
-    variables = {"newPostForm": newPostForm, "posts": posts}
+    postsPaginator = Paginator(posts, 10)
+    page_num = request.GET.get('page')
+    page = postsPaginator.get_page(page_num)
+    variables = {"newPostForm": newPostForm, "page": page}
 
     if request.method == "POST":
         # Get form data
@@ -89,13 +93,18 @@ def register(request):
 @login_required
 def profile(request, username):
     if request.method == "GET":
-        user = functions.ProfileData().get(request.user.username)
+        userData = functions.ProfileData().get(request.user.username)
+        postsPaginator = Paginator(userData.posts, 10)
+        page_num = request.GET.get('page')
+        page = postsPaginator.get_page(page_num)
+        
         return render(
             request,
             "network/profile.html",
             {
                 "profile": functions.ProfileData().get(username),
-                "isFollowing": user.checkIfIsFollowing(username),
+                "isFollowing": userData.checkIfIsFollowing(username),
+                "page": page,
             },
         )
     elif (
