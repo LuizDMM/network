@@ -23,7 +23,7 @@
                     </div>
                     <div class="col">
                         {% if post.author == user %}
-                            <a href="{% url 'index' %}?page={{ page.next_page_number }}">Edit</a>
+                            <a href="{% url 'editPost' post.id %}">Edit</a>
                         {% endif %}
                     </div>
                 </div>
