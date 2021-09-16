@@ -15,9 +15,9 @@ def index(request):
     # Variable declaration and pagination logic
     posts = functions.getAllUserPostsAndLikes()
     postsPaginator = Paginator(posts, 10)
-    page_num = request.GET.get('page')
+    page_num = request.GET.get("page")
     page = postsPaginator.get_page(page_num)
-    variables = {"newPostForm": newPostForm, "page": page}
+    variables = {"newPostForm": newPostForm, "page": page, "user": request.user}
 
     if request.method == "POST":
         # Get form data
@@ -26,11 +26,13 @@ def index(request):
 
         # Create post if data is valid
         if form.is_valid():
-            functions.createPostFormAuthor(form, request.user)
+            functions.createPost(form, request.user)
             return HttpResponseRedirect(reverse("index"))
         else:
             return render(
-                request, "network/index.html", {"newPostForm": form, "posts": posts}
+                request,
+                "network/index.html",
+                {"newPostForm": form, "posts": posts, "user": request.user.username},
             )
     else:
         return render(request, "network/index.html", variables)
@@ -93,17 +95,17 @@ def register(request):
 @login_required
 def profile(request, username):
     if request.method == "GET":
-        userData = functions.ProfileData().get(request.user.username)
-        postsPaginator = Paginator(userData.posts, 10)
-        page_num = request.GET.get('page')
+        currentUser = functions.ProfileData().get(request.user.username)
+        postsPaginator = Paginator(functions.ProfileData().get(username).posts, 10)
+        page_num = request.GET.get("page")
         page = postsPaginator.get_page(page_num)
-        
+
         return render(
             request,
             "network/profile.html",
             {
                 "profile": functions.ProfileData().get(username),
-                "isFollowing": userData.checkIfIsFollowing(username),
+                "isFollowing": currentUser.checkIfIsFollowing(username),
                 "page": page,
             },
         )
@@ -129,10 +131,20 @@ def following(request):
     # Get the posts from all the users that the user is following
     posts = functions.getFollowingPostsAndLikes(usernames)
 
+    # Paginate the posts
+    postsPaginator = Paginator(posts, 10)
+    page_num = request.GET.get("page")
+    page = postsPaginator.get_page(page_num)
+
     return render(
-            request,
-            "network/following.html",
-            {
-                "posts": posts
-            },
-        )
+        request,
+        "network/following.html",
+        {"page": page},
+    )
+
+
+@login_required
+def edit_post(request, id):
+    post = functions.PostData().get(id)
+    print(post.content)
+    return HttpResponseRedirect(reverse("index"))

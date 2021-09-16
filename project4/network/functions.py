@@ -5,7 +5,7 @@ from .forms import newPostForm
 from .models import User, Post, Like, FollowRelations
 
 
-def createPostFormAuthor(form, author):
+def createPost(form, author):
     # Complement form data
     postData = form.save(commit=False)
     postData.author = User.objects.get(pk=author.id)
@@ -15,10 +15,23 @@ def createPostFormAuthor(form, author):
 
 class PostData:
     def __init__(self):
+        self.id = 0
         self.author = "author"
         self.dateTime = "datetime"
         self.content = "content"
         self.likes = 0
+
+    def get(self, id):
+        postData = Post.objects.get(id=id)
+        self.id = id
+        self.author = postData.author
+        self.dateTime = postData.dateTime
+        self.content = postData.content
+        self.likes = Like.objects.filter(post=postData).count()
+        return self
+
+    def edit(self):
+        pass
 
 
 def getAllUserPostsAndLikes():
@@ -26,6 +39,7 @@ def getAllUserPostsAndLikes():
     postsToReturn = []
     for item in postsQueried:
         data = PostData()
+        data.id = item.id
         data.author = item.author
         data.dateTime = item.dateTime
         data.content = item.content
