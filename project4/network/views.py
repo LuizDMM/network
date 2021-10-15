@@ -2,12 +2,12 @@ from django.core.paginator import Paginator
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 
 from . import functions
-from .forms import newPostForm
+from .forms import newPostForm, editPostForm
 from .models import User, Post, Like, FollowRelations
 
 
@@ -32,7 +32,7 @@ def index(request):
             return render(
                 request,
                 "network/index.html",
-                {"newPostForm": form, "posts": posts, "user": request.user.username},
+                {"newPostForm": form, "page": page, "user": request.user.username},
             )
     else:
         return render(request, "network/index.html", variables)
@@ -144,7 +144,28 @@ def following(request):
 
 
 @login_required
+def getPost(request, id):
+    return render(request, 'network/postDiv.html', {'post': functions.getPost(id)})
+
+
+@login_required
 def edit_post(request, id):
-    post = functions.PostData().get(id)
-    print(post.content)
-    return HttpResponseRedirect(reverse("index"))
+    # Query the post
+    try:
+        post = Post.objects.get(id=id)
+    except Post.DoesNotExist:
+        return HttpResponse("Error: The post does not exist.")
+    
+    # Check if the user is the post's author.
+    if request.user.id != post.author.id:
+            return HttpResponse("Error: You can't edit this post.")
+    
+    # If request method is POST, modify the post
+    if request.method == "POST":
+        form = editPostForm(request.POST, instance=post)
+        if form.is_valid():
+            form.save()
+
+    # If request method is GET: return the form
+    form = editPostForm(instance=post)
+    return render(request, "network/editPostForm.html", {"form": form, "id": id})

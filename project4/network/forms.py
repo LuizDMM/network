@@ -7,5 +7,14 @@ class newPostForm(forms.ModelForm):
         model = Post
         fields = ['content']
         widgets = {
-            'content': forms.Textarea(attrs={'class': 'form-control', 'id': 'postContent'})
+            'content': forms.Textarea(attrs={'class': 'form-control textarea'})
+        }
+
+
+class editPostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={'class': 'form-control textarea'})
         }

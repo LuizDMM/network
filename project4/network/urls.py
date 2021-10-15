@@ -10,5 +10,6 @@ urlpatterns = [
     path("logout", views.logout_view, name="logout"),
     path("register", views.register, name="register"),
     path("u/<str:username>",views.profile, name="profile"),
-    path("post/post-<int:id>/edit", views.edit_post, name="editPost"),
+    path("post/post-<int:id>",views.getPost, name="postDiv"),
+    path("post/post-<int:id>/edit", views.edit_post, name="editPost"), 
 ]

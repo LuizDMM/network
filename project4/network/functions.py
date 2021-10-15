@@ -48,6 +48,17 @@ def getAllUserPostsAndLikes():
     return postsToReturn
 
 
+def getPost(id):
+    postQueried = Post.objects.get(id=id)
+    postToReturn = PostData()
+    postToReturn.id = postQueried.id
+    postToReturn.author = postQueried.author
+    postToReturn.dateTime = postQueried.dateTime
+    postToReturn.content = postQueried.content
+    postToReturn.likes = Like.objects.filter(post=postQueried).count()
+    return postToReturn
+
+
 def getFollowingPostsAndLikes(usernames):
     postsToReturn = []
 
