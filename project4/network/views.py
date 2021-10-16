@@ -145,7 +145,7 @@ def following(request):
 
 @login_required
 def getPost(request, id):
-    return render(request, 'network/postDiv.html', {'post': functions.getPost(id)})
+    return render(request, "network/postDiv.html", {"post": functions.getPost(id)})
 
 
 @login_required
@@ -155,17 +155,22 @@ def edit_post(request, id):
         post = Post.objects.get(id=id)
     except Post.DoesNotExist:
         return JsonResponse({"error": "The post does not exist."}, status=400)
-    
+
     # Check if the user is the post's author.
     if request.user.id != post.author.id:
-            return JsonResponse({"error": "You can't edit this post."}, status=400)
-    
+        return JsonResponse({"error": "You can't edit this post."}, status=400)
+
     # If request method is POST, modify the post
     if request.method == "POST":
         form = editPostForm(request.POST, instance=post)
         if form.is_valid():
             form.save()
-            return JsonResponse({'message': "success"}, status=201)
+            return render(
+                request,
+                "network/postDiv.html",
+                {"post": functions.getPost(id)},
+                status=201,
+            )
 
     # If request method is GET: return the form
     form = editPostForm(instance=post)

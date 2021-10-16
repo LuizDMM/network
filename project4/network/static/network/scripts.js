@@ -1,13 +1,17 @@
 document.addEventListener("DOMContentLoaded", function () {
   // Add listeners to the "Edit Post" buttons
-  document.querySelectorAll(".editPostButton").forEach((button) =>
-    button.addEventListener("click", function () {
-      let postDiv = button.parentElement.parentElement.parentElement;
-      let postDivClone = postDiv.cloneNode(true);
-      showEditPostForm(postDivClone);
-    })
-  );
+  addEditButtonsEventListeners();
 });
+
+function addEditButtonsEventListeners() {
+  document.querySelectorAll(".editPostButton").forEach((button) => button.addEventListener("click", function () {
+    console.log("button clicked!");
+    postDiv = button.parentElement.parentElement.parentElement;
+    postDivClone = postDiv.cloneNode(true);
+    showEditPostForm(postDivClone);
+  })
+  );
+}
 
 function showEditPostForm(postDiv) {
   fetch(`/post/${postDiv.id}/edit`)
@@ -15,14 +19,14 @@ function showEditPostForm(postDiv) {
     .then((response) => {
       let div = document.querySelector(`#${postDiv.id}`);
       let form = document.createElement("form");
-      /* form.setAttribute("action", `/post/${postDiv.id}/edit`);
-      form.setAttribute("method", "post"); */
       let id = postDiv.id.split("-")[1];
       form.setAttribute("id", `editPost-${id}`);
-      form.setAttribute("onsubmit", `submitEditPostForm(${id})`);
+      form.setAttribute("action", `/post/${postDiv.id}/edit`);
+      form.setAttribute("method", "POST");
       form.innerHTML = response;
       div.innerHTML = "";
       div.appendChild(form);
+      addFormEventListener(id);
     });
 }
 
@@ -33,7 +37,6 @@ function getCookie(name) {
     const cookies = document.cookie.split(";");
     for (let i = 0; i < cookies.length; i++) {
       const cookie = cookies[i].trim();
-      // Does this cookie string begin with the name we want?
       if (cookie.substring(0, name.length + 1) === name + "=") {
         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
         break;
@@ -45,29 +48,18 @@ function getCookie(name) {
 
 const csrftoken = getCookie("csrftoken");
 
-function submitEditPostForm(id) {
-  let form = document.querySelector(`#editPost-${id}`);
-  let div = document.querySelector(`#post-${id}`);
+function addFormEventListener(id) {
+  $(`#editPost-${id}`).submit(function () {
+    $.ajax({
+      data: $(this).serialize(), // get the form data
+      type: $(this).attr("method"), 
+      url: $(this).attr("action"), 
+      success: function (response) {
+        $(`#post-${id}`).html(response); // update the DIV
+        addEditButtonsEventListeners()
+      },
+    });
 
-  fetch(`/post/post-${id}/edit`, {
-    method: "POST",
-    body: JSON.stringify({
-      csrfmiddlewaretoken: form.children[0].value,
-      content: form.children[1].value,
-      credentials: "same-origin",
-    }),
-    headers: { "X-CSRFToken": csrftoken },
-  }).then((response) => {
-    if (response.status == 400) {
-      alert(`Error: ${response.error}`);
-    } else {
-      fetch(`/post/post-${id}`)
-        .then((response) => response.text())
-        .then((response) => {
-          div.innerHTML = response;
-        });
-    }
+    return false; // cancel original event to prevent form submitting
   });
-
-  return false;
 }
