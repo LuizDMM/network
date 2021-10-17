@@ -30,9 +30,6 @@ class PostData:
         self.likes = Like.objects.filter(post=postData).count()
         return self
 
-    def edit(self):
-        pass
-
 
 def getAllUserPostsAndLikes():
     postsQueried = Post.objects.all().order_by("-dateTime")
@@ -110,3 +107,10 @@ def followOrUnfollowFollowedFollowing(followed, following):
         return True
     FollowRelations.objects.filter(followed=User.objects.get(username=followedData.username), following=User.objects.get(username=followingData.username)).delete()
     return True
+
+
+def checkIfUserLikedPost(user, post):
+    if Like.objects.filter(post=post, personThatLike=user).count() > 0:
+        return True
+    else:
+        return False

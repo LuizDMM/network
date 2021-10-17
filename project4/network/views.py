@@ -1,3 +1,4 @@
+import json
 from django.core.paginator import Paginator
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -5,6 +6,7 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 
 from . import functions
 from .forms import newPostForm, editPostForm
@@ -14,6 +16,10 @@ from .models import User, Post, Like, FollowRelations
 def index(request):
     # Variable declaration and pagination logic
     posts = functions.getAllUserPostsAndLikes()
+    for item in posts:
+        user = User.objects.get(id=request.user.id)
+        post = Post.objects.get(id=item.id)
+        item.liked = functions.checkIfUserLikedPost(user, post)
     postsPaginator = Paginator(posts, 10)
     page_num = request.GET.get("page")
     page = postsPaginator.get_page(page_num)
@@ -144,8 +150,43 @@ def following(request):
 
 
 @login_required
-def getPost(request, id):
-    return render(request, "network/postDiv.html", {"post": functions.getPost(id)})
+@csrf_exempt
+def post(request, id):
+    if request.method == "PUT":
+        user = User.objects.get(id=request.user.id)
+        post = Post.objects.get(id=id)
+        userLikedPost = functions.checkIfUserLikedPost(user, post)
+        print(userLikedPost)
+        if userLikedPost:
+            Like.objects.filter(post=post, personThatLike=user).delete()
+            render(
+                request,
+                "network/postDiv.html",
+                {
+                    "post": functions.getPost(id),
+                    "liked": functions.checkIfUserLikedPost(user, post),
+                },
+            )
+        else:
+            like = Like(post=post, personThatLike=user)
+            like.save()
+            return render(
+                request,
+                "network/postDiv.html",
+                {
+                    "post": functions.getPost(id),
+                    "liked": functions.checkIfUserLikedPost(user, post),
+                },
+            )
+
+    return render(
+        request,
+        "network/postDiv.html",
+        {
+            "post": functions.getPost(id),
+            "liked": functions.checkIfUserLikedPost(user, post),
+        },
+    )
 
 
 @login_required

@@ -1,15 +1,32 @@
 document.addEventListener("DOMContentLoaded", function () {
   // Add listeners to the "Edit Post" buttons
   addEditButtonsEventListeners();
+  addLikeButtonsEventListeners();
 });
 
 function addEditButtonsEventListeners() {
-  document.querySelectorAll(".editPostButton").forEach((button) => button.addEventListener("click", function () {
-    console.log("button clicked!");
-    postDiv = button.parentElement.parentElement.parentElement;
-    postDivClone = postDiv.cloneNode(true);
-    showEditPostForm(postDivClone);
-  })
+  document.querySelectorAll(".editPostButton").forEach((button) =>
+    button.addEventListener("click", function () {
+      postDiv = button.parentElement.parentElement.parentElement;
+      postDivClone = postDiv.cloneNode(true);
+      showEditPostForm(postDivClone);
+    })
+  );
+}
+
+function addLikeButtonsEventListeners() {
+  document.querySelectorAll(".likeButton").forEach((button) =>
+    button.addEventListener("click", function () {
+      let postDiv = button.parentElement.parentElement.parentElement;
+      fetch(`/post/${postDiv.id}`, {
+        method: "PUT",
+      })
+        .then((response) => response.text())
+        .then((response) => {
+          postDiv.innerHTML = response;
+          addLikeButtonsEventListeners();
+        });
+    })
   );
 }
 
@@ -52,11 +69,11 @@ function addFormEventListener(id) {
   $(`#editPost-${id}`).submit(function () {
     $.ajax({
       data: $(this).serialize(), // get the form data
-      type: $(this).attr("method"), 
-      url: $(this).attr("action"), 
+      type: $(this).attr("method"),
+      url: $(this).attr("action"),
       success: function (response) {
         $(`#post-${id}`).html(response); // update the DIV
-        addEditButtonsEventListeners()
+        addEditButtonsEventListeners();
       },
     });
 
