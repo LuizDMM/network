@@ -137,6 +137,12 @@ def following(request):
     # Get the posts from all the users that the user is following
     posts = functions.getFollowingPostsAndLikes(usernames)
 
+    # Add the like information 
+    for item in posts:
+        user = User.objects.get(id=request.user.id)
+        post = Post.objects.get(id=item.id)
+        item.liked = functions.checkIfUserLikedPost(user, post)
+
     # Paginate the posts
     postsPaginator = Paginator(posts, 10)
     page_num = request.GET.get("page")

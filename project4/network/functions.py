@@ -95,6 +95,8 @@ class ProfileData:
             followed=userModelData
         ).count()
         for post in postModelData:
+            post.liked = checkIfUserLikedPost(userModelData, post)
+            post.likes = Like.objects.filter(post=post).count()
             self.posts.append(post)
         return self
 
