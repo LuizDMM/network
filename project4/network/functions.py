@@ -10,6 +10,7 @@ def createPost(form, author):
     postData = form.save(commit=False)
     postData.author = User.objects.get(pk=author.id)
     postData.dateTime = datetime.now()
+    # Save the new post
     postData.save()
 
 
@@ -95,6 +96,7 @@ class ProfileData:
             followed=userModelData
         ).count()
         for post in postModelData:
+            # Complement the post data to the view
             post.liked = checkIfUserLikedPost(userModelData, post)
             post.likes = Like.objects.filter(post=post).count()
             self.posts.append(post)

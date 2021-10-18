@@ -16,6 +16,7 @@ from .models import User, Post, Like, FollowRelations
 def index(request):
     # Variable declaration and pagination logic
     posts = functions.getAllUserPostsAndLikes()
+    # Complement the post data to the view
     for item in posts:
         user = User.objects.get(id=request.user.id)
         post = Post.objects.get(id=item.id)
@@ -102,7 +103,7 @@ def register(request):
 def profile(request, username):
     if request.method == "GET":
         currentUser = functions.ProfileData().get(request.user.username)
-        postsPaginator = Paginator(functions.ProfileData().get(username).posts, 10)
+        postsPaginator = Paginator(functions.ProfileData().get(username).posts, 10) # Get the posts from the current user
         page_num = request.GET.get("page")
         page = postsPaginator.get_page(page_num)
 
@@ -115,9 +116,7 @@ def profile(request, username):
                 "page": page,
             },
         )
-    elif (
-        request.method == "POST"
-    ):  # Create a form in the view that the submit button follows.
+    elif request.method == "POST":  # Create a form in the view that the submit button follows.
         functions.followOrUnfollowFollowedFollowing(username, request.user.username)
         return HttpResponseRedirect(reverse("profile", args=[username]))
 
@@ -137,7 +136,7 @@ def following(request):
     # Get the posts from all the users that the user is following
     posts = functions.getFollowingPostsAndLikes(usernames)
 
-    # Add the like information 
+    # Add the like information for the view
     for item in posts:
         user = User.objects.get(id=request.user.id)
         post = Post.objects.get(id=item.id)
@@ -158,11 +157,11 @@ def following(request):
 @login_required
 @csrf_exempt
 def post(request, id):
+    # If request method is PUT, Like or Unlike the post
     if request.method == "PUT":
         user = User.objects.get(id=request.user.id)
         post = Post.objects.get(id=id)
         userLikedPost = functions.checkIfUserLikedPost(user, post)
-        print(userLikedPost)
         if userLikedPost:
             Like.objects.filter(post=post, personThatLike=user).delete()
             render(
@@ -185,6 +184,7 @@ def post(request, id):
                 },
             )
 
+    # If request method is GET, return the required post Div to add to the view
     return render(
         request,
         "network/postDiv.html",

@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Add listeners to the "Edit Post" buttons
+  // Add listeners to the "Edit Post" and "Like" buttons
   addEditButtonsEventListeners();
   addLikeButtonsEventListeners();
 });
@@ -7,8 +7,10 @@ document.addEventListener("DOMContentLoaded", function () {
 function addEditButtonsEventListeners() {
   document.querySelectorAll(".editPostButton").forEach((button) =>
     button.addEventListener("click", function () {
-      postDiv = button.parentElement.parentElement.parentElement;
+      postDiv = button.parentElement.parentElement.parentElement; // Select the post DIV element to have the post info
+      // Clone the post DIV to keep the post info in memory while updating data
       postDivClone = postDiv.cloneNode(true);
+  
       showEditPostForm(postDivClone);
     })
   );
@@ -17,7 +19,8 @@ function addEditButtonsEventListeners() {
 function addLikeButtonsEventListeners() {
   document.querySelectorAll(".likeButton").forEach((button) =>
     button.addEventListener("click", function () {
-      let postDiv = button.parentElement.parentElement.parentElement;
+      let postDiv = button.parentElement.parentElement.parentElement; // Select the post DIV element to have the post info
+      // Fetch the API to like or unlike the post
       fetch(`/post/${postDiv.id}`, {
         method: "PUT",
       })
@@ -31,9 +34,11 @@ function addLikeButtonsEventListeners() {
 }
 
 function showEditPostForm(postDiv) {
+  // Fetch the API to get the form
   fetch(`/post/${postDiv.id}/edit`)
     .then((response) => response.text())
     .then((response) => {
+      // Create the form object and append the form got from the API
       let div = document.querySelector(`#${postDiv.id}`);
       let form = document.createElement("form");
       let id = postDiv.id.split("-")[1];
@@ -43,6 +48,7 @@ function showEditPostForm(postDiv) {
       form.innerHTML = response;
       div.innerHTML = "";
       div.appendChild(form);
+      // Add the form submtion Event listener
       addFormEventListener(id);
     });
 }
@@ -66,6 +72,7 @@ function getCookie(name) {
 const csrftoken = getCookie("csrftoken");
 
 function addFormEventListener(id) {
+  // Submit the form without redirecting the page
   $(`#editPost-${id}`).submit(function () {
     $.ajax({
       data: $(this).serialize(), // get the form data
@@ -73,7 +80,7 @@ function addFormEventListener(id) {
       url: $(this).attr("action"),
       success: function (response) {
         $(`#post-${id}`).html(response); // update the DIV
-        addEditButtonsEventListeners();
+        addEditButtonsEventListeners(); // Add the event listener to the new button
       },
     });
 
